@@ -8,7 +8,7 @@ use <../vitamins/nuts.scad>
 diameter = 80;
 totalHeight = 15;
 hubHeight = 10;
-hubDiameter = 18;
+hubDiameter = 20;
 screwHeight = totalHeight - 5;
 tolerance = 0.15;
 
@@ -44,7 +44,7 @@ module MotorHub() {
 
             translate([M3 / 2 + 3, 0, 0])
             rotate([90, 0, 90])
-            NutM3Hole(1.7);
+            NutM3Hole(2.4);
         }
     }
 }
