@@ -3,6 +3,8 @@ Do-It-Yourself Rock Tumbler
 
 A simple Rock Tumbler I built from scratch in just a few hours.
 
+![DiY Rock Tumbler](media/rock-tumbler.jpg)
+
 ## Bill of Materials
 
 | Name | Quantity | Unit Price | Link | Comment |
