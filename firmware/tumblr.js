@@ -5,6 +5,7 @@
 const PIN_ENABLE = D2; // Connected to !SLP / !RST pin of Stepper Driver
 const PIN_STEP = D3;
 const PIN_DIRECTION = D4;
+const PIN_SENSOR = A0; // Set to null to disable magnetic revolution sensor
 
 const stepResolution = 1; // how many pulses per step (1 = full step mode)
 const stepsPerRotation = 200;
@@ -12,13 +13,16 @@ const stepsPerRotation = 200;
 const pulsesPerRotation = stepsPerRotation * stepResolution;
 const stepsPerRPM = pulsesPerRotation / 60;
 const buttonDelta = stepsPerRPM * 1;
-const acceleration = stepsPerRotation * stepResolution * 100;
+const acceleration = stepsPerRotation * stepResolution;
+const startSpeed = 20 * stepsPerRPM;
 let targetSpeed = 45 * stepsPerRPM;
 let lastTime = 0;
 let direction = 1;
 let enabled = 0;
+let lastSensorTime = 0;
+let revolutionCounter = 0;
+let recoveryStage = 0;
 
-const startSpeed = 200 * stepsPerRPM;
 let speed = startSpeed;
 
 require("FontDennis8").add(Graphics);
@@ -40,6 +44,9 @@ function updateScreen() {
   g.drawString(rpm, g.getWidth() / 2, 24);
   g.setFontVector(12);
   g.drawString("RPM", g.getWidth() / 2, 44);
+
+  g.setFontBitmap();
+  g.drawString(revolutionCounter, g.getWidth() / 2, 60);
 
   // Draw buttons
   g.setFontDennis8();
@@ -81,7 +88,9 @@ function changeDirection() {
 function toggleMotor() {
   enabled = !enabled;
   speed = startSpeed;
+  recoveryStage = 0;
   lastTime = getTime();
+  lastSensorTime = getTime();
 }
 
 function setSpeed(speed) {
@@ -115,10 +124,46 @@ function stop() {
   digitalWrite(PIN_ENABLE, enabled = 0);
 }
 
+function checkSensor() {
+  if (!enabled) {
+    return;
+  }
+  const delta = getTime() - lastSensorTime;
+  let newSpeed = null;
+  if (delta > 5 && !recoveryStage) {
+    newSpeed = speed / 2;
+    recoveryStage = 1;
+  } else if (delta > 15 && recoveryStage === 1) {
+    newSpeed = stepsPerRPM * 10;
+    recoveryStage = 2;
+  } else if (delta > 30 && recoveryStage === 2) {
+    newSpeed = stepsPerRPM * 5;
+    recoveryStage = 3;
+  } else if (delta > 60) {
+    // We haven't been able to recover, give up
+    stop();
+  }
+  if (newSpeed) {
+    speed = newSpeed;
+    setSpeed(speed);
+  }
+}
+
+function sensorHit(e) {
+  lastSensorTime = getTime();
+  recoveryStage = 0;
+  revolutionCounter++;
+}
+
 function onInit() {
   LED.set();
 
   setInterval(accelerate, 1);
+  if (PIN_SENSOR != null) {
+    setInterval(checkSensor, 100);
+    setWatch(sensorHit, PIN_SENSOR, { repeat: true, edge: 'falling' });
+  }
+
   // Button handlers
   setWatch(increaseSpeed, BTN1, {edge:"rising", debounce:50, repeat:true});
   setWatch(decreaseSpeed, BTN2, {edge:"rising", debounce:50, repeat:true});
