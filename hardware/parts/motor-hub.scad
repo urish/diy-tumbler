@@ -6,9 +6,9 @@ include <MCAD/units.scad>
 use <../vitamins/nuts.scad>
 
 diameter = 80;
-totalHeight = 15;
-hubHeight = 10;
-hubDiameter = 20;
+totalHeight = 20;
+hubHeight = 15;
+hubDiameter = 22.5;
 screwHeight = totalHeight - 5;
 tolerance = 0.15;
 
