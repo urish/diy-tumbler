@@ -150,7 +150,13 @@ function checkSensor() {
 }
 
 function sensorHit(e) {
-  lastSensorTime = getTime();
+  if (e.time - e.lastTime < 0.1) {
+    // This is probably noise - we don't go faster than 600RPM, so we shouldn't be getting 10
+    // events per second.
+    return;
+  }
+
+  lastSensorTime = e.time;
   recoveryStage = 0;
   revolutionCounter++;
 }
