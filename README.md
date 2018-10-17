@@ -3,6 +3,8 @@ Do-It-Yourself Rock Tumbler
 
 A simple Rock Tumbler I built from scratch in just a few hours.
 
+For more information read the blog post: [Improvising Hardware: DiY Rotary Rock Tumbler](https://medium.com/@urish/improvising-hardware-diy-rotary-rock-tumbler-d3a1a1915ea9)
+
 ![DiY Rock Tumbler](media/rock-tumbler.jpg)
 
 ## Bill of Materials
